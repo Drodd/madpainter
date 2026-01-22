@@ -613,15 +613,14 @@ const App: React.FC = () => {
               }}
             >
                 <GameCanvas 
-                  shapes={shapes}
                   madness={gameState.madness} 
                   width={width} 
                   height={height} 
                   isReality={true} 
                   onStrokeClick={() => {}} 
                   selectedColor={selectedColor}
-                fullscreen={true}
-                onImageLoad={(size) => setBgSize(size)}
+                  fullscreen={true}
+                  onImageLoad={(size) => setBgSize(size)}
                 />
           </div>
         </div>
