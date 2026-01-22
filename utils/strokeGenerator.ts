@@ -221,7 +221,7 @@ export const generateSunflowersData = (width: number, height: number): LevelData
 
   // Abstract: Fewer, larger strokes for easier filling (with retry for filtered strokes)
   let skyStrokesAdded = 0;
-  const maxSkyStrokes = 35;
+  const maxSkyStrokes = 18; // Reduced for smaller canvas
   const maxRetries = maxSkyStrokes * 4; // Allow more attempts for spacing
   for (let attempt = 0; attempt < maxRetries && skyStrokesAdded < maxSkyStrokes; attempt++) {
     const x = Math.random() * width;
@@ -229,9 +229,9 @@ export const generateSunflowersData = (width: number, height: number): LevelData
     const beforeCount = strokes.length;
     addStroke(x, y, PaletteColor.SkyBlue, {
       angle: 0 + (Math.random() - 0.5) * 15,
-      length: 40,
-      width: 12,
-      minDistance: 22 // Larger spacing for sky strokes
+      length: 45,
+      width: 14,
+      minDistance: 28 // Larger spacing for sky strokes
     });
     if (strokes.length > beforeCount) {
       skyStrokesAdded++;
@@ -244,7 +244,7 @@ export const generateSunflowersData = (width: number, height: number): LevelData
 
   // Abstract: Fewer, larger horizontal strokes (with retry)
   let tableStrokesAdded = 0;
-  const maxTableStrokes = 25;
+  const maxTableStrokes = 12; // Reduced for smaller canvas
   const maxTableRetries = maxTableStrokes * 4;
   for (let attempt = 0; attempt < maxTableRetries && tableStrokesAdded < maxTableStrokes; attempt++) {
     const x = Math.random() * width;
@@ -252,9 +252,9 @@ export const generateSunflowersData = (width: number, height: number): LevelData
     const beforeCount = strokes.length;
     addStroke(x, y, PaletteColor.EarthYellow, {
       angle: 0 + (Math.random() - 0.5) * 5,
-      length: 45,
-      width: 14,
-      minDistance: 25 // Larger spacing for table strokes
+      length: 50,
+      width: 16,
+      minDistance: 32 // Larger spacing for table strokes
     });
     if (strokes.length > beforeCount) {
       tableStrokesAdded++;
@@ -289,7 +289,7 @@ export const generateSunflowersData = (width: number, height: number): LevelData
 
   // Abstract: Fewer, larger vertical strokes for vase (with retry)
   let vaseStrokesAdded = 0;
-  const maxVaseStrokes = 20;
+  const maxVaseStrokes = 10; // Reduced for smaller canvas
   const maxVaseRetries = maxVaseStrokes * 4;
   for (let attempt = 0; attempt < maxVaseRetries && vaseStrokesAdded < maxVaseStrokes; attempt++) {
     const t = Math.random();
@@ -303,9 +303,9 @@ export const generateSunflowersData = (width: number, height: number): LevelData
     const beforeCount = strokes.length;
     addStroke(x, y, PaletteColor.GrassGreen, {
       angle: 90 + (Math.random() - 0.5) * 20,
-      length: 28,
-      width: 10,
-      minDistance: 18 // Medium spacing for vase strokes
+      length: 32,
+      width: 12,
+      minDistance: 22 // Medium spacing for vase strokes
     });
     if (strokes.length > beforeCount) {
       vaseStrokesAdded++;
@@ -336,7 +336,7 @@ export const generateSunflowersData = (width: number, height: number): LevelData
     }));
 
     // Abstract: Fewer strokes along stem path (with retry)
-    const stemPoints = 5;
+    const stemPoints = 3; // Reduced for smaller canvas
     let stemStrokesAdded = 0;
     for (let k = 0; k < stemPoints; k++) {
       const t = k / stemPoints;
@@ -354,9 +354,9 @@ export const generateSunflowersData = (width: number, height: number): LevelData
         const beforeCount = strokes.length;
       addStroke(cx, cy, PaletteColor.GrassGreen, {
           angle: 75 + Math.random() * 25,
-          length: 22,
-          width: 8,
-          minDistance: 16 // Medium spacing for stem strokes
+          length: 26,
+          width: 10,
+          minDistance: 20 // Medium spacing for stem strokes
         });
         if (strokes.length > beforeCount) {
           strokeAdded = true;
@@ -366,9 +366,9 @@ export const generateSunflowersData = (width: number, height: number): LevelData
           const offset = (retry + 1) * 1.5;
           addStroke(cx + (Math.random() - 0.5) * offset, cy + (Math.random() - 0.5) * offset, PaletteColor.GrassGreen, {
             angle: 75 + Math.random() * 25,
-            length: 22,
-            width: 8,
-            minDistance: 16
+            length: 26,
+            width: 10,
+            minDistance: 20
       });
           if (strokes.length > beforeCount) {
             strokeAdded = true;
@@ -379,7 +379,7 @@ export const generateSunflowersData = (width: number, height: number): LevelData
     }
 
     // --- Petals ---
-    const petalCount = 10; // Reduced for simpler filling
+    const petalCount = 6; // Reduced for smaller canvas
     for (let j = 0; j < petalCount; j++) {
       const angleDeg = (j / petalCount) * 360;
       const angleRad = (angleDeg * Math.PI) / 180;
@@ -435,7 +435,7 @@ export const generateSunflowersData = (width: number, height: number): LevelData
     }));
 
     // Abstract: Fewer, larger dots for center (with retry)
-    const centerDots = idx === 0 ? 6 : 5;
+    const centerDots = idx === 0 ? 4 : 3; // Reduced for smaller canvas
     let centerDotsAdded = 0;
     const maxCenterRetries = centerDots * 6;
     for (let attempt = 0; attempt < maxCenterRetries && centerDotsAdded < centerDots; attempt++) {
@@ -447,10 +447,10 @@ export const generateSunflowersData = (width: number, height: number): LevelData
       const beforeCount = strokes.length;
       addStroke(cx, cy, PaletteColor.OchreSienna, {
         angle: Math.random() * 360,
-        length: 12,
-        width: 10,
+        length: 14,
+        width: 12,
         curvature: 0,
-        minDistance: 10 // Small spacing for center dots (they can be close)
+        minDistance: 12 // Small spacing for center dots
       });
       if (strokes.length > beforeCount) {
         centerDotsAdded++;

@@ -410,7 +410,7 @@ const App: React.FC = () => {
     : Date.now() - gameState.startTime;
 
   // Circular palette positions (6 colors around center)
-  const paletteRadius = 52;
+  const paletteRadius = 42; // Smaller radius for compact palette
   const getColorPosition = (index: number, total: number) => {
     const angle = (index / total) * 2 * Math.PI - Math.PI / 2; // Start from top
     return {
@@ -625,13 +625,14 @@ const App: React.FC = () => {
           </div>
         </div>
 
-          {/* FOREGROUND: Canvas Overlay (Bottom-Right) */}
+          {/* FOREGROUND: Canvas Overlay (Bottom-Right, above palette) */}
           <div 
-            className="absolute bottom-4 right-4 z-20"
+            className="absolute right-4 z-20"
             style={{
-              width: '45%',
-              maxWidth: '400px',
-              minWidth: '280px',
+              bottom: '160px', // Above the palette
+              width: '38%',
+              maxWidth: '320px',
+              minWidth: '200px',
               aspectRatio: `${width}/${height}`,
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px #3D2B1F',
               borderRadius: '4px',
@@ -649,12 +650,12 @@ const App: React.FC = () => {
                 />
         </div>
 
-          {/* CIRCULAR PALETTE (Bottom-Left) */}
+          {/* CIRCULAR PALETTE (Bottom-Left, smaller) */}
           <div 
-            className="absolute bottom-6 left-6 z-30"
+            className="absolute bottom-4 left-4 z-30"
             style={{
-              width: '140px',
-              height: '140px',
+              width: '120px',
+              height: '120px',
             }}
           >
             {/* Palette background circle */}
@@ -669,7 +670,7 @@ const App: React.FC = () => {
             
             {/* Center brush icon */}
             <div 
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center"
               style={{ background: '#FAF8F0' }}
             >
               <BrushIcon />
@@ -685,8 +686,8 @@ const App: React.FC = () => {
               onClick={() => setSelectedColor(color)}
                   className="absolute rounded-full transition-all duration-150"
                   style={{
-                    width: isSelected ? '38px' : '34px',
-                    height: isSelected ? '38px' : '34px',
+                    width: isSelected ? '30px' : '26px',
+                    height: isSelected ? '30px' : '26px',
                     backgroundColor: color,
                     left: `calc(50% + ${pos.x}px)`,
                     top: `calc(50% + ${pos.y}px)`,
