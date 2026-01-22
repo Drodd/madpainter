@@ -31,7 +31,6 @@ export interface Translations {
   // Van Gogh's hints
   vanGoghHints: Record<PaletteColor, string[]>;
   vanGoghSatisfied: string[];
-  vanGoghSignature: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -102,7 +101,6 @@ export const translations: Record<Language, Translations> = {
       '我的心感到轻松了...',
       '疯狂在消退...',
     ],
-    vanGoghSignature: '— 梵高',
   },
   en: {
     title: 'Mad Painter',
@@ -171,7 +169,6 @@ export const translations: Record<Language, Translations> = {
       "My heart feels lighter...",
       "The madness recedes...",
     ],
-    vanGoghSignature: '— Van Gogh',
   },
 };
 

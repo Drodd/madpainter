@@ -625,11 +625,11 @@ const App: React.FC = () => {
           </div>
         </div>
 
-          {/* FOREGROUND: Canvas Overlay (Bottom-Right, above palette) */}
+          {/* FOREGROUND: Canvas Overlay (Bottom-Right) */}
           <div 
             className="absolute right-4 z-20"
             style={{
-              bottom: '160px', // Above the palette
+              bottom: '10%',
               width: '38%',
               maxWidth: '320px',
               minWidth: '200px',
@@ -650,10 +650,11 @@ const App: React.FC = () => {
                 />
         </div>
 
-          {/* CIRCULAR PALETTE (Bottom-Left, smaller) */}
+          {/* CIRCULAR PALETTE (Bottom-Left) */}
           <div 
-            className="absolute bottom-4 left-4 z-30"
+            className="absolute left-4 z-30"
             style={{
+              bottom: '10%',
               width: '120px',
               height: '120px',
             }}
@@ -740,14 +741,6 @@ const App: React.FC = () => {
                 >
                   "{hintMessage}"
                 </p>
-                {!isSatisfiedMessage && hintColor && (
-                  <p 
-                    className="font-body text-xs text-center mt-2 opacity-75"
-                    style={{ color: '#F5F0E1' }}
-                  >
-                    {t.vanGoghSignature}
-                  </p>
-                )}
               </div>
             </div>
           )}
