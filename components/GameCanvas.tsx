@@ -77,27 +77,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, [isReality, fullscreen, imageLoaded, onImageLoad]);
 
-  // Animate for Reality canvas - using simple time-based animation
-  useEffect(() => {
-    if (!isReality || madness === 0) return;
-    
-    let animationId: number;
-    let lastUpdate = 0;
-    
-    const animate = (timestamp: number) => {
-      // Throttle to ~15 FPS for performance
-      if (timestamp - lastUpdate > 66) {
-        setAnimTime(t => t + 0.02);
-        lastUpdate = timestamp;
-      }
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
-  }, [isReality, madness]);
-
-  // Draw image for Reality canvas
+  // Animate and draw for Reality canvas with wave distortion
   useEffect(() => {
     if (!isReality || !imageLoaded || !imageRef.current) return;
     
@@ -107,19 +87,24 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     if (!ctx) return;
 
     const img = imageRef.current;
+    let animationId: number;
+    let time = 0;
+    
+    // Calculate draw dimensions once
+    let drawWidth: number, drawHeight: number, drawX: number, drawY: number;
+    const cw = fullscreen ? canvasSize.width : width;
+    const ch = fullscreen ? canvasSize.height : height;
     
     if (fullscreen) {
-      // Draw image to fill canvas
-      ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
-      ctx.drawImage(img, 0, 0, canvasSize.width, canvasSize.height);
+      drawWidth = cw;
+      drawHeight = ch;
+      drawX = 0;
+      drawY = 0;
     } else {
-      // Normal mode: fit image in canvas
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(0, 0, width, height);
-      
       const imgAspect = img.width / img.height;
       const canvasAspect = width / height;
-      let drawWidth = width, drawHeight = height, drawX = 0, drawY = 0;
+      drawX = 0;
+      drawY = 0;
       
       if (imgAspect > canvasAspect) {
         drawHeight = height;
@@ -130,10 +115,87 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         drawHeight = width / imgAspect;
         drawY = (height - drawHeight) / 2;
       }
-      
-      ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
     }
-  }, [width, height, isReality, fullscreen, imageLoaded, canvasSize]);
+    
+    const draw = () => {
+      const m = madness / 100;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, cw, ch);
+      
+      if (!fullscreen) {
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, width, height);
+      }
+      
+      // Apply color filters via globalCompositeOperation workaround
+      // First draw the distorted image
+      if (madness === 0) {
+        // No distortion - simple draw
+        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+      } else {
+        // Wave distortion effect - draw image in horizontal strips with offset
+        const stripHeight = 8; // Height of each strip
+        const numStrips = Math.ceil(drawHeight / stripHeight);
+        const waveAmplitude = m * 25; // Max horizontal displacement (0-25px)
+        const waveFrequency = 0.02 + m * 0.03; // Wave frequency
+        const verticalWave = m * 15; // Vertical displacement
+        
+        for (let i = 0; i < numStrips; i++) {
+          const y = i * stripHeight;
+          const srcY = (y / drawHeight) * img.height;
+          const srcHeight = (stripHeight / drawHeight) * img.height;
+          
+          // Calculate wave offset for this strip
+          const waveOffset = Math.sin(y * waveFrequency + time * 2) * waveAmplitude;
+          const vertOffset = Math.cos(y * waveFrequency * 0.7 + time * 1.5) * verticalWave * 0.3;
+          
+          // Draw strip with offset
+          ctx.drawImage(
+            img,
+            0, srcY, img.width, srcHeight, // Source rectangle
+            drawX + waveOffset, drawY + y + vertOffset, drawWidth, stripHeight + 1 // Dest rectangle (+1 to avoid gaps)
+          );
+        }
+        
+        // Apply color overlay for desaturation/darkening effect
+        ctx.globalCompositeOperation = 'saturation';
+        ctx.fillStyle = `hsl(0, ${100 - madness}%, 50%)`;
+        ctx.fillRect(0, 0, cw, ch);
+        
+        ctx.globalCompositeOperation = 'multiply';
+        const darken = Math.max(180, 255 - madness * 0.8);
+        ctx.fillStyle = `rgb(${darken}, ${darken}, ${darken})`;
+        ctx.fillRect(0, 0, cw, ch);
+        
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    };
+    
+    if (madness === 0) {
+      // Static draw when no madness
+      draw();
+    } else {
+      // Animate when madness > 0
+      let lastUpdate = 0;
+      const animate = (timestamp: number) => {
+        // Throttle to ~20 FPS for good performance
+        if (timestamp - lastUpdate > 50) {
+          time += 0.05;
+          setAnimTime(time);
+          draw();
+          lastUpdate = timestamp;
+        }
+        animationId = requestAnimationFrame(animate);
+      };
+      
+      animationId = requestAnimationFrame(animate);
+    }
+    
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+    };
+  }, [width, height, isReality, fullscreen, imageLoaded, canvasSize, madness]);
 
   // Static rendering for Painting canvas
   useEffect(() => {
@@ -214,14 +276,10 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   };
 
-  // Calculate distortion values using CSS filters (iOS Safari compatible)
+  // Calculate shake/rotation values (distortion is done in canvas draw)
   const m = madness / 100;
-  const saturation = Math.max(0, 100 - madness);
-  const brightness = Math.max(70, 100 - madness * 0.3);
-  const blur = m * 2; // 0 to 2px blur
-  const hueRotate = Math.sin(animTime * 0.5) * m * 20; // Subtle hue shift
-  const rotation = Math.sin(animTime * 0.5) * m * 8;
-  const scale = 1 + Math.sin(animTime * 0.3) * m * 0.06;
+  const rotation = Math.sin(animTime * 0.5) * m * 5; // Subtle rotation shake
+  const scale = 1 + Math.sin(animTime * 0.3) * m * 0.03; // Subtle scale pulse
 
   // Determine canvas class based on mode
   const canvasClass = fullscreen 
@@ -232,16 +290,10 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   const actualWidth = fullscreen ? canvasSize.width : width;
   const actualHeight = fullscreen ? canvasSize.height : height;
 
-  // CSS filter string for iOS Safari compatibility (no SVG filters)
-  const cssFilter = isReality && madness > 0 
-    ? `saturate(${saturation}%) brightness(${brightness}%) blur(${blur}px) hue-rotate(${hueRotate}deg)`
-    : undefined;
-
-  // Canvas style with Safari vendor prefixes
+  // Canvas style - only rotation/scale shake, color effects handled in canvas draw
   const canvasStyle: React.CSSProperties = isReality && madness > 0 ? {
-    filter: cssFilter,
     transform: `rotate(${rotation}deg) scale(${scale})`,
-    transition: 'transform 0.1s ease-out, filter 0.1s ease-out',
+    transition: 'transform 0.08s ease-out',
   } : {};
 
   // Show loading placeholder for fullscreen reality canvas while image loads
